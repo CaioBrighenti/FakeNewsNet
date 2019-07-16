@@ -49,7 +49,15 @@ class DataCollector:
         pass
 
     def load_news_file(self, data_choice):
-        csv.field_size_limit(sys.maxsize)
+        maxInt = sys.maxsize
+        while True:
+            # decrease the maxInt value by factor 10
+            # as long as the OverflowError occurs.
+            try:
+                csv.field_size_limit(maxInt)
+                break
+            except OverflowError:
+                maxInt = int(maxInt / 10)
 
         news_list = []
         with open('{}/{}_{}.csv'.format(self.config.dataset_dir, data_choice["news_source"],
@@ -72,6 +80,15 @@ def create_dir(dir_name):
 
 def is_folder_exists(folder_name):
     return os.path.exists(folder_name)
+
+
+def equal_chunks(list, chunk_size):
+    """return successive n-sized chunks from l."""
+    chunks = []
+    for i in range(0, len(list), chunk_size):
+        chunks.append(list[i:i + chunk_size])
+
+    return chunks
 
 
 def multiprocess_data_collection(function_reference, data_list, args, config: Config):
